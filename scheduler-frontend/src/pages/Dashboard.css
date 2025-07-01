@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap');
+
+.dashboard-container {
+  font-family: 'Manrope', sans-serif;
+  background-color: #ffffff;
+  padding: 2rem;
+  min-height: 100vh;
+  color: #111;
+}
+
+/* 👤 Welcome Heading */
+.dashboard-heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+/* 🔶 Section Subheadings */
+.dashboard-subheading {
+  color: #fb7230;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+}
+
+/* 🧾 Slot List */
+.slot-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  list-style-type: none;
+  padding-left: 0;
+}
+
+/* 🗓️ Slot Card */
+.slot-item {
+  display: block;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.slot-item strong {
+  color: #000000; /* true black */
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.slot-item span {
+  font-size: 1rem;
+  font-weight: 500;
+  max-width: 70%;
+  word-break: break-word;
+}
+
+/* 🔸 Divider Line */
+.section-divider {
+  border: none;
+  border-top: 2px solid black;
+    opacity: 0.60;
+  margin: 2rem 0;
+}
+
+/* 🔐 Booked Slot Style */
+.booked-slot {
+  background-color: #fff6f0;
+  border: 1px solid #fb7230;
+}
+
+.booked-by {
+  font-size: 0.9rem;
+  color: #444;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+/* 🎯 Individual Button Colors */
+.book-button {
+  background-color: #28a745; /* Green */
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.book-button:hover {
+  background-color: #218838;
+}
+
+.cancel-button {
+  background-color: #dc3545; /* Red */
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-button:hover {
+  background-color: #c82333;
+}
+
+.add-button {
+  background-color: #fb7230; /* Orange */
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-button:hover {
+  background-color: #e86122;
+}
+
+/* 🧩 Add Slot Form */
+.add-slot-form {
+  margin-top: 2rem;
+}
+
+input[type="datetime-local"] {
+  margin-right: 1rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* 🟠 Orange Glowing Badge for Role */
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.profile-header small[data-role] {
+  background: linear-gradient(45deg, #fb7230, #f97316);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  box-shadow: 0 0 10px rgba(251, 114, 48, 0.5);
+  animation: glowPulse 2s ease-in-out infinite alternate;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes glowPulse {
+  from {
+    box-shadow: 0 0 10px rgba(251, 114, 48, 0.5);
+    transform: scale(1);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(251, 114, 48, 0.9);
+    transform: scale(1.02);
+  }
+}
+.dashboard-heading small[data-role] {
+  margin-left: 1rem;
+  vertical-align: middle;
+  position: relative;
+  top: -2px; /* ⬆️ raise it slightly, adjust as needed */
+}
+
+.add-slot-section {
+  background-color: white; /* Light blue */
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-top: 2rem;
+  border: 1px solid #cce0f5;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.date-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-icon {
+  color: #1e90ff;
+  font-size: 1.25rem;
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 5px #1e90ff;
+  }
+  to {
+    text-shadow: 0 0 12px #1e90ff;
+  }
+}
+

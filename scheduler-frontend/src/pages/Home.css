@@ -1,0 +1,69 @@
+.home-container {
+  font-family: 'Manrope', sans-serif;
+  background-color: #ffffff;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Shift content to top */
+  padding: 4rem 2rem 2rem 2rem; /* more space at top */
+  position: relative;
+}
+
+.home-content {
+  text-align: center;
+  max-width: 500px;
+  position: relative;
+  z-index: 1;
+  margin-top: 2rem; /* push content slightly down from top */
+}
+
+.home-title {
+  font-family: 'Proxima Nova', 'Manrope', sans-serif;
+  font-size: 3rem;
+  font-weight: 900; /* bolder */
+  color: #111;
+  margin-bottom: 1rem;
+}
+
+.home-subtitle {
+  font-size: 1.5rem;
+  color: black;
+  margin-bottom: 2rem;
+}
+
+.home-button {
+  background-color: #fb7230;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  font-size: 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #e86122;
+}
+
+.logo-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.30;
+  z-index: 0;
+  width: 80vw;
+  max-width: 800px;
+  pointer-events: none;
+}
+.add-slot-section {
+  background-color: #e6f4ff; /* Light blue */
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-top: 2rem;
+  border: 1px solid #cce0f5;
+}
+
