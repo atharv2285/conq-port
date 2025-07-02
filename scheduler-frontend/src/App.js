@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import SetupPage from './pages/SetupPage';
 
-const API = process.env.REACT_APP_API_BASE_URL;
+const API = process.env.REACT_APP_API_URL;
 
 function App() {
   const [user, setUser] = useState(null);
