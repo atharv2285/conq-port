@@ -103,6 +103,14 @@ router.post('/setup', async (req, res) => {
   res.json({ message: '✅ Profile saved!' });
 });
 
+// 🔍 DEBUG ROUTE: /test-session
+router.get('/test-session', (req, res) => {
+  if (req.session?.user) {
+    res.send(`✅ Logged in as ${req.session.user.email}`);
+  } else {
+    res.status(401).send('❌ No session set');
+  }
+});
+
+
 export default router;
-
-
