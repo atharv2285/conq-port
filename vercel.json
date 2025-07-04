@@ -1,0 +1,12 @@
+{
+    "projects": [
+    {
+      "src": "scheduler-frontend",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      },
+      "buildCommand": "npm run build"
+    }
+  ]
+} 
