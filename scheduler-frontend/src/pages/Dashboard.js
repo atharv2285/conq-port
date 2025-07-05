@@ -4,7 +4,6 @@ import './Dashboard.css';
 
 const API = process.env.REACT_APP_API_BASE_URL || 'https://conqking-production.up.railway.app';
 
-
 // 🧠 Helper to format time
 function formatSlotTime(start, end) {
   const startDate = new Date(start);
@@ -35,14 +34,23 @@ function Dashboard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get(`${API}/api/auth/me`, { withCredentials: true })
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setError('❌ No authentication token found');
+      return;
+    }
+    
+    axios.get(`${API}/api/auth/me?token=${token}`)
       .then(res => setUser(res.data))
       .catch(() => setError('❌ Not logged in or session expired'));
   }, []);
 
   useEffect(() => {
     if (!user) return;
-    axios.get(`${API}/api/slots`, { withCredentials: true })
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    
+    axios.get(`${API}/api/slots?token=${token}`)
       .then(res => setSlots(res.data))
       .catch(() => setError('❌ Failed to load slots'));
   }, [user]);
@@ -77,7 +85,8 @@ function Dashboard() {
                   <button
                     className="cancel-button"
                     onClick={() => {
-                      axios.delete(`${API}/api/mentor/slots/${slot.id}`, { withCredentials: true })
+                      const token = localStorage.getItem('authToken');
+                      axios.delete(`${API}/api/mentor/slots/${slot.id}?token=${token}`)
                         .then(() => window.location.reload())
                         .catch(() => alert('❌ Failed to delete slot'));
                     }}
@@ -118,7 +127,8 @@ function Dashboard() {
                   <button
                     className="book-button"
                     onClick={() => {
-                      axios.post(`${API}/api/mentor/book`, { id: slot.id }, { withCredentials: true })
+                      const token = localStorage.getItem('authToken');
+                      axios.post(`${API}/api/mentor/book?token=${token}`, { id: slot.id })
                         .then(() => window.location.reload())
                         .catch(() => alert('❌ Booking failed'));
                     }}
@@ -157,10 +167,11 @@ function AddSlotForm() {
     const end = new Date(start.getTime() + 60 * 60 * 1000); // 1 hour later
 
     try {
-      await axios.post(`${API}/api/mentor/slots`, {
+      const token = localStorage.getItem('authToken');
+      await axios.post(`${API}/api/mentor/slots?token=${token}`, {
         time: start.toISOString(),
         endTime: end.toISOString(),
-      }, { withCredentials: true });
+      });
 
       alert('✅ Slot added!');
       window.location.reload();
