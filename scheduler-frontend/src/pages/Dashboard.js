@@ -33,6 +33,12 @@ function Dashboard() {
   const [slots, setSlots] = useState([]);
   const [error, setError] = useState('');
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('authToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -40,7 +46,7 @@ function Dashboard() {
       return;
     }
     
-    axios.get(`${API}/api/auth/me?token=${token}`)
+    axios.get(`${API}/api/auth/me`, { headers: getAuthHeaders() })
       .then(res => setUser(res.data))
       .catch(() => setError('❌ Not logged in or session expired'));
   }, []);
@@ -50,7 +56,7 @@ function Dashboard() {
     const token = localStorage.getItem('authToken');
     if (!token) return;
     
-    axios.get(`${API}/api/slots?token=${token}`)
+    axios.get(`${API}/api/slots`, { headers: getAuthHeaders() })
       .then(res => setSlots(res.data))
       .catch(() => setError('❌ Failed to load slots'));
   }, [user]);
@@ -85,8 +91,9 @@ function Dashboard() {
                   <button
                     className="cancel-button"
                     onClick={() => {
-                      const token = localStorage.getItem('authToken');
-                      axios.delete(`${API}/api/mentor/slots/${slot.id}?token=${token}`)
+                      axios.delete(`${API}/api/mentor/slots/${slot.id}`, { 
+                        headers: getAuthHeaders() 
+                      })
                         .then(() => window.location.reload())
                         .catch(() => alert('❌ Failed to delete slot'));
                     }}
@@ -127,8 +134,9 @@ function Dashboard() {
                   <button
                     className="book-button"
                     onClick={() => {
-                      const token = localStorage.getItem('authToken');
-                      axios.post(`${API}/api/mentor/book?token=${token}`, { id: slot.id })
+                      axios.post(`${API}/api/mentor/book`, { id: slot.id }, { 
+                        headers: getAuthHeaders() 
+                      })
                         .then(() => window.location.reload())
                         .catch(() => alert('❌ Booking failed'));
                     }}
@@ -161,17 +169,22 @@ function Dashboard() {
 function AddSlotForm() {
   const [time, setTime] = useState('');
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('authToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
     const start = new Date(time);
     const end = new Date(start.getTime() + 60 * 60 * 1000); // 1 hour later
 
     try {
-      const token = localStorage.getItem('authToken');
-      await axios.post(`${API}/api/mentor/slots?token=${token}`, {
+      await axios.post(`${API}/api/mentor/slots`, {
         time: start.toISOString(),
         endTime: end.toISOString(),
-      });
+      }, { headers: getAuthHeaders() });
 
       alert('✅ Slot added!');
       window.location.reload();

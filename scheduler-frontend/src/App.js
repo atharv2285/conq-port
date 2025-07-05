@@ -12,7 +12,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 🔐 Check session on load
+  // Helper function to get auth headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('authToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   // 🔐 Check token and user on load
   useEffect(() => {
     const fetchUser = async () => {
@@ -37,7 +42,9 @@ function App() {
           return;
         }
 
-        const res = await fetch(`${API}/api/auth/me?token=${storedToken}`);
+        const res = await fetch(`${API}/api/auth/me`, {
+          headers: getAuthHeaders()
+        });
 
         const data = await res.json();
 
