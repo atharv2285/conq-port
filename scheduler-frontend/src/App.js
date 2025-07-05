@@ -13,17 +13,37 @@ function App() {
   const navigate = useNavigate();
 
   // 🔐 Check session on load
+  // 🔐 Check token and user on load
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${API}/api/auth/me`, {
-          credentials: 'include',
-        });
+        // Check for token in URL (after OAuth redirect)
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        if (token) {
+          // Store token in localStorage
+          localStorage.setItem('authToken', token);
+          // Remove token from URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Get token from localStorage
+        const storedToken = localStorage.getItem('authToken');
+        
+        if (!storedToken) {
+          setAuthError('⚠️ No authentication token found');
+          setLoading(false);
+          return;
+        }
+
+        const res = await fetch(`${API}/api/auth/me?token=${storedToken}`);
 
         const data = await res.json();
 
         if (!res.ok) {
           setAuthError(`⚠️ Session Error: ${data.message}`);
+          localStorage.removeItem('authToken'); // Clear invalid token
           setLoading(false);
           return;
         }
@@ -44,7 +64,7 @@ function App() {
     };
 
     fetchUser();
-  }, []);
+  }, [navigate]);
 
   return (
     <div>
