@@ -39,20 +39,22 @@ router.get('/google/callback', async (req, res) => {
     const oauth2 = google.oauth2({ auth: oauth2Client, version: 'v2' });
     const { data } = await oauth2.userinfo.get();
 
-    req.session.tokens = tokens;
-    req.session.email = data.email;
-    req.session.user = {
+    const user = {
       email: data.email,
       name: data.name,
       picture: data.picture,
       role: MENTOR_EMAILS.includes(data.email) ? 'mentor' : 'founder',
+      tokens: tokens, // Include OAuth tokens for calendar operations
     };
 
-    console.log('✅ Logged in:', req.session.user);
+    // Create a simple token (base64 encoded user data)
+    const token = Buffer.from(JSON.stringify(user)).toString('base64');
+
+    console.log('✅ Logged in:', user);
 
     const frontendRedirect = isProd
-      ? 'https://conq-port.vercel.app/dashboard'
-      : 'http://localhost:3001/dashboard';
+      ? `${process.env.FRONTEND_URL}/dashboard?token=${token}`
+      : `http://localhost:3001/dashboard?token=${token}`;
 
     res.redirect(frontendRedirect);
   } catch (err) {
@@ -61,30 +63,60 @@ router.get('/google/callback', async (req, res) => {
   }
 });
 
-// 👉 Session check
+// 👉 Token check
 router.get('/me', (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: 'Not logged in' });
+  let token = req.query.token;
+  
+  // If no token in query, try Authorization header
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
   }
-  res.json(req.session.user);
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    const userData = Buffer.from(token, 'base64').toString();
+    const user = JSON.parse(userData);
+    res.json(user);
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
 });
 
 // 👉 Save user profile
 router.post('/setup', async (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: 'Not logged in' });
+  let token = req.query.token;
+  
+  // If no token in query, try Authorization header
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
   }
 
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    const userData = Buffer.from(token, 'base64').toString();
+    const user = JSON.parse(userData);
   const { role, startupName, expertise, linkedin } = req.body;
 
   await db.read();
   db.data ||= {};
   db.data.users ||= [];
 
-  const index = db.data.users.findIndex(u => u.email === req.session.user.email);
+    const index = db.data.users.findIndex(u => u.email === user.email);
 
   const updatedUser = {
-    ...req.session.user,
+      ...user,
     role,
     startupName: startupName || null,
     expertise: expertise || null,
@@ -97,20 +129,14 @@ router.post('/setup', async (req, res) => {
     db.data.users.push(updatedUser);
   }
 
-  req.session.user = updatedUser;
-
-  await db.write();
-  res.json({ message: '✅ Profile saved!' });
-});
-
-// 🔍 DEBUG ROUTE: /test-session
-router.get('/test-session', (req, res) => {
-  if (req.session?.user) {
-    res.send(`✅ Logged in as ${req.session.user.email}`);
-  } else {
-    res.status(401).send('❌ No session set');
+    await db.write();
+    
+    // Create new token with updated user data
+    const newToken = Buffer.from(JSON.stringify(updatedUser)).toString('base64');
+    res.json({ message: '✅ Profile saved!', token: newToken });
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
   }
 });
-
 
 export default router;
