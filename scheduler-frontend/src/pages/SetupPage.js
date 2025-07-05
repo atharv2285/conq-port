@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 const API = process.env.REACT_APP_API_BASE_URL || 'https://conqking-production.up.railway.app';
 
-
 function SetupPage() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState('');
@@ -17,7 +16,13 @@ function SetupPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${API}/api/auth/me`, { credentials: 'include' })
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setError('❌ No authentication token found');
+      return;
+    }
+    
+    fetch(`${API}/api/auth/me?token=${token}`)
       .then(res => res.json())
       .then(data => {
         setUser(data);
@@ -40,9 +45,14 @@ function SetupPage() {
     if (role === 'founder' && !startupName) return setError('Startup name required for founders');
 
     try {
-      const res = await fetch(`${API}/api/auth/setup`, {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('❌ No authentication token found');
+        return;
+      }
+
+      const res = await fetch(`${API}/api/auth/setup?token=${token}`, {
         method: 'POST',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role, startupName, expertise, linkedin }),
       });
@@ -50,6 +60,12 @@ function SetupPage() {
       const data = await res.json();
       if (res.ok) {
         setMessage(data.message || '✅ Setup complete');
+        
+        // Update token if new one is provided
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+        }
+        
         setTimeout(() => navigate('/dashboard'), 1000);
       } else {
         throw new Error(data.message || 'Setup failed');
