@@ -8,7 +8,6 @@ function decodeToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
-  
   try {
     const token = authHeader.substring(7);
     const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
