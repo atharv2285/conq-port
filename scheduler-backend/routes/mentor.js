@@ -6,6 +6,22 @@ import db from '../db.mjs';
 
 const router = express.Router();
 
+// Helper function to decode JWT token
+function decodeToken(authHeader) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  
+  try {
+    const token = authHeader.substring(7);
+    const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
+    return decoded;
+  } catch (error) {
+    console.error('Token decode error:', error);
+    return null;
+  }
+}
+
 function getOAuthClient(tokens) {
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -18,7 +34,8 @@ function getOAuthClient(tokens) {
 
 // 🧠 Add Slot
 router.post('/slots', async (req, res) => {
-  if (!req.session.tokens || !req.session.email) {
+  const user = decodeToken(req.headers.authorization);
+  if (!user || !user.tokens || !user.email) {
     return res.status(401).json({ message: 'Unauthorized. Please log in.' });
   }
 
@@ -26,11 +43,11 @@ router.post('/slots', async (req, res) => {
   const startDate = new Date(time);
   const endDate = new Date(endTime);
 
-  const oauth2Client = getOAuthClient(req.session.tokens);
+  const oauth2Client = getOAuthClient(user.tokens);
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
   const event = {
-    summary: `Mentor Slot with ${req.session.email}`,
+    summary: `Mentor Slot with ${user.email}`,
     description: 'Mentorship Call Slot',
     start: {
       dateTime: startDate.toISOString(),
@@ -40,7 +57,7 @@ router.post('/slots', async (req, res) => {
       dateTime: endDate.toISOString(),
       timeZone: 'Asia/Kolkata',
     },
-    attendees: [{ email: req.session.email }],
+    attendees: [{ email: user.email }],
     conferenceData: {
       createRequest: {
         requestId: uuidv4(),
@@ -64,8 +81,8 @@ router.post('/slots', async (req, res) => {
     await db.read();
     db.data.slots.push({
       id: uuidv4(),
-      mentorEmail: req.session.email,
-      mentorName: req.session.user.name,
+      mentorEmail: user.email,
+      mentorName: user.name,
       time,
       endTime,
       isBooked: false,
@@ -73,7 +90,7 @@ router.post('/slots', async (req, res) => {
       bookedByName: null,
       googleEventId: calendarEvent.data.id,
       meetLink,
-      mentorTokens: req.session.tokens,
+      mentorTokens: user.tokens,
     });
     await db.write();
 
@@ -86,12 +103,14 @@ router.post('/slots', async (req, res) => {
 
 // ❌ Cancel Slot
 router.delete('/slots/:id', async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'mentor') {
+  const user = decodeToken(req.headers.authorization);
+  if (!user || user.role !== 'mentor') {
     return res.status(401).json({ message: 'Unauthorized' });
   }
+  
   const { id } = req.params;
   await db.read();
-  const index = db.data.slots.findIndex(s => s.id === id && s.mentorEmail === req.session.email);
+  const index = db.data.slots.findIndex(s => s.id === id && s.mentorEmail === user.email);
   if (index === -1) return res.status(404).json({ message: 'Slot not found or not authorized.' });
 
   const slot = db.data.slots[index];
@@ -115,7 +134,8 @@ router.delete('/slots/:id', async (req, res) => {
 
 // 📅 Book Slot
 router.post('/book', async (req, res) => {
-  if (!req.session.tokens || !req.session.user?.email) {
+  const user = decodeToken(req.headers.authorization);
+  if (!user || !user.tokens || !user.email) {
     return res.status(401).json({ message: 'Unauthorized. Please log in.' });
   }
 
@@ -128,8 +148,8 @@ router.post('/book', async (req, res) => {
   }
 
   slot.isBooked = true;
-  slot.bookedBy = req.session.user.email;
-  slot.bookedByName = req.session.user.name;
+  slot.bookedBy = user.email;
+  slot.bookedByName = user.name;
 
   const oauth2Client = getOAuthClient(slot.mentorTokens);
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -141,9 +161,9 @@ router.post('/book', async (req, res) => {
       resource: {
         attendees: [
           { email: slot.mentorEmail },
-          { email: req.session.user.email },
+          { email: user.email },
         ],
-        summary: `Mentorship Call with ${req.session.user.email}`,
+        summary: `Mentorship Call with ${user.email}`,
       },
       sendUpdates: 'all',
     });
@@ -156,12 +176,13 @@ router.post('/book', async (req, res) => {
 });
 
 router.get('/slots', async (req, res) => {
-  if (!req.session.user) {
+  const user = decodeToken(req.headers.authorization);
+  if (!user) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
   await db.read();
-  const { role, email } = req.session.user;
+  const { role, email } = user;
 
   let slots;
 
