@@ -1,4 +1,3 @@
-// ✅ Final Backend Route (mentorRoutes.mjs or mentor.js)
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { google } from 'googleapis';
@@ -11,7 +10,6 @@ function decodeToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
-  
   try {
     const token = authHeader.substring(7);
     const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
