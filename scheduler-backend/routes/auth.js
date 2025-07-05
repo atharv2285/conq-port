@@ -5,7 +5,7 @@ import db from '../db.mjs';
 
 const router = express.Router();
 
-const MENTOR_EMAILS = ['shivani8477@gmail.com', 'f20230352@pilani.bits-pilani.ac.in'];
+const MENTOR_EMAILS = ['shivani8477@gmail.com', 'f20230352@pilani.bits-pilani.ac.in', 'newmentor@example.com'];
 
 const isProd = process.env.NODE_ENV === 'production';
 const redirect_uri = isProd
