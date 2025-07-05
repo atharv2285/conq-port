@@ -18,3 +18,4 @@ yarn-error.log*
 # === Testing & Coverage ===
 coverage/
 scheduler-backend/db.json
+node_modules

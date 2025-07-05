@@ -168,6 +168,7 @@ function Dashboard() {
 
 function AddSlotForm() {
   const [time, setTime] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Helper function to get auth headers
   const getAuthHeaders = () => {
@@ -177,6 +178,12 @@ function AddSlotForm() {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    
+    // Prevent double submission
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
     const start = new Date(time);
     const end = new Date(start.getTime() + 60 * 60 * 1000); // 1 hour later
 
@@ -188,8 +195,11 @@ function AddSlotForm() {
 
       alert('✅ Slot added!');
       window.location.reload();
-    } catch {
+    } catch (error) {
+      console.error('Failed to add slot:', error);
       alert('❌ Failed to add slot');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -203,8 +213,15 @@ function AddSlotForm() {
           value={time}
           onChange={e => setTime(e.target.value)}
           required
+          disabled={isSubmitting}
         />
-        <button type="submit" className="add-button">Add Slot</button>
+        <button 
+          type="submit" 
+          className="add-button"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Adding...' : 'Add Slot'}
+        </button>
       </div>
     </form>
   );

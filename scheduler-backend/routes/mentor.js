@@ -32,14 +32,35 @@ function getOAuthClient(tokens) {
 
 // 🧠 Add Slot
 router.post('/slots', async (req, res) => {
+  console.log('🔍 Creating new slot...');
+  
   const user = decodeToken(req.headers.authorization);
   if (!user || !user.tokens || !user.email) {
+    console.log('❌ Unauthorized slot creation attempt');
     return res.status(401).json({ message: 'Unauthorized. Please log in.' });
   }
 
   const { time, endTime } = req.body;
+  console.log('📅 Slot time:', time, 'to', endTime, 'for user:', user.email);
+  
   const startDate = new Date(time);
   const endDate = new Date(endTime);
+
+  // Check for duplicate slots
+  await db.read();
+  const existingSlot = db.data.slots.find(s => 
+    s.mentorEmail === user.email && 
+    s.time === time && 
+    s.endTime === endTime
+  );
+  
+  if (existingSlot) {
+    console.log('⚠️ Duplicate slot detected, returning existing slot');
+    return res.status(409).json({ 
+      message: 'Slot already exists for this time', 
+      slot: existingSlot 
+    });
+  }
 
   const oauth2Client = getOAuthClient(user.tokens);
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -65,6 +86,7 @@ router.post('/slots', async (req, res) => {
   };
 
   try {
+    console.log('📅 Creating Google Calendar event...');
     const calendarEvent = await calendar.events.insert({
       calendarId: 'primary',
       resource: event,
@@ -76,8 +98,7 @@ router.post('/slots', async (req, res) => {
       e => e.entryPointType === 'video'
     )?.uri || null;
 
-    await db.read();
-    db.data.slots.push({
+    const newSlot = {
       id: uuidv4(),
       mentorEmail: user.email,
       mentorName: user.name,
@@ -89,11 +110,15 @@ router.post('/slots', async (req, res) => {
       googleEventId: calendarEvent.data.id,
       meetLink,
       mentorTokens: user.tokens,
-    });
+    };
+
+    db.data.slots.push(newSlot);
     await db.write();
 
-    res.json({ message: '✅ Slot added with calendar event', event });
+    console.log('✅ Slot created successfully:', newSlot.id);
+    res.json({ message: '✅ Slot added with calendar event', event, slot: newSlot });
   } catch (error) {
+    console.error('❌ Error creating slot:', error);
     const err = error?.response?.data?.error || error.message;
     res.status(500).json({ message: 'Failed to create calendar event', details: err });
   }
