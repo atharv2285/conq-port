@@ -9,7 +9,7 @@ const MENTOR_EMAILS = [
   'rahul_yadava@outlook.com',
   'pgroy1@gmail.com',
   'pantuvarali@gmail.com',
-  'venkat.rm@gmail.com',
+  'Venkat.rm@gmail.com',
   'pjajoo@gmail.com',
   'Startupediacommunity@gmail.com',
   'sheshadriv@gmail.com',
@@ -33,8 +33,21 @@ const MENTOR_EMAILS = [
   'vikas@shoffr.in',
   'madhava.venkatesh@trustrace.com',
   'mohsin.syed@kiwitech.com',
-  'f20230352@pilani.bits-pilani.ac.in',
-  'f20240043@pilani.bits-pilani.ac.in'
+  'santosh.hunugund@gmail.com',
+  'abhinavjainranka@gmail.com',
+  'as.shah.07@gmail.com',
+  'ajay.jain788@gmail.com',
+  'leena.elizabethj@gmail.com',
+  'contactveda@gmail.com',
+  'mukul.bagga@medicomhealthcare.com',
+  'lastmansurfing@gmail.com',
+  'vigneshpoojari@gmail.com',
+  'geetanjali_sahi@yahoo.co.in',
+  'arjunnohwar@gmail.com',
+  'Rohitsiitb@gmail.com',
+  'mail@shreyasachar.com',
+  '2ksaurabh@gmail.com',
+  'pranay.gupta@gmail.com'
 ];
 
 const isProd = process.env.NODE_ENV === 'production';
