@@ -5,7 +5,35 @@ import db from '../db.mjs';
 
 const router = express.Router();
 
-const MENTOR_EMAILS = ['shivani8477@gmail.com', 'f20230352@pilani.bits-pilani.ac.in', 'newmentor@example.com', 'f20241228@pilani.bits-pilani.ac.in'];
+const MENTOR_EMAILS = [
+  'rahul_yadava@outlook.com',
+  'pgroy1@gmail.com',
+  'pantuvarali@gmail.com',
+  'venkat.rm@gmail.com',
+  'pjajoo@gmail.com',
+  'Startupediacommunity@gmail.com',
+  'sheshadriv@gmail.com',
+  'apoorv@excluto.com',
+  'Sridhar.mulakaluri@gmail.com',
+  'daingamar@gmail.com',
+  'vikas@kapture.cx',
+  'advani@gmail.com',
+  'rahul@mesh.ai',
+  'vibhu.nsit@gmail.com',
+  'malkanifaiz@gmail.com',
+  'kagarwal@a5gnet.com',
+  'sameer@chavan.me',
+  'vipin.tyagi@gmail.com',
+  'vikasch90@gmail.com',
+  'himanshuperiwal@gmail.com',
+  'mohitschauhan2010@gmail.com',
+  'subrat.pani@oneassist.in',
+  'priyanka@cieraadvisors.com',
+  'subin@groyyo.com',
+  'vikas@shoffr.in',
+  'madhava.venkatesh@trustrace.com',
+  'mohsin.syed@kiwitech.com'  
+];
 
 const isProd = process.env.NODE_ENV === 'production';
 const redirect_uri = isProd
