@@ -32,7 +32,9 @@ const MENTOR_EMAILS = [
   'subin@groyyo.com',
   'vikas@shoffr.in',
   'madhava.venkatesh@trustrace.com',
-  'mohsin.syed@kiwitech.com'  
+  'mohsin.syed@kiwitech.com',
+  'f20230352@pilani.bits-pilani.ac.in',
+  'f20240043@pilani.bits-pilani.ac.in'
 ];
 
 const isProd = process.env.NODE_ENV === 'production';
