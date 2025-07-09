@@ -2,6 +2,7 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { google } from 'googleapis';
 import db from '../db.mjs';
+import startupMentorMap from '../utils/startupMentorMap.json' assert { type: 'json' };
 
 const router = express.Router();
 
@@ -168,6 +169,14 @@ router.post('/book', async (req, res) => {
 
   if (!slot || slot.isBooked) {
     return res.status(400).json({ message: '❌ Slot not available.' });
+  }
+
+  // Restrict founders to only book with their allotted mentor
+  if (user.role === 'founder') {
+    const mapping = startupMentorMap.find(entry => entry.startup === (user.startupName || '').trim().toUpperCase());
+    if (!mapping || slot.mentorEmail !== mapping.mentorEmail) {
+      return res.status(403).json({ message: 'You can only book slots with your allotted mentor.' });
+    }
   }
 
   slot.isBooked = true;

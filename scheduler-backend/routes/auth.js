@@ -2,6 +2,7 @@ import express from 'express';
 import { google } from 'googleapis';
 import oauth2Client from '../utils/oauthClient.js';
 import db from '../db.mjs';
+import startupMentorMap from '../utils/startupMentorMap.json' assert { type: 'json' };
 
 const router = express.Router();
 
@@ -150,30 +151,35 @@ router.post('/setup', async (req, res) => {
   try {
     const userData = Buffer.from(token, 'base64').toString();
     const user = JSON.parse(userData);
-  const { role, startupName, expertise, linkedin } = req.body;
+    const { role, startupName, expertise, linkedin } = req.body;
 
-  await db.read();
-  db.data ||= {};
-  db.data.users ||= [];
+    if (role === 'founder') {
+      // Validate startup name (case sensitive, must be ALL CAPS)
+      const found = startupMentorMap.find(
+        entry => entry.startup === startupName.trim().toUpperCase()
+      );
+      if (!found) {
+        return res.status(400).json({ message: 'Startup name not found. Please enter the name in ALL CAPS as per the list.' });
+      }
+    }
 
+    await db.read();
+    db.data ||= {};
+    db.data.users ||= [];
     const index = db.data.users.findIndex(u => u.email === user.email);
-
-  const updatedUser = {
+    const updatedUser = {
       ...user,
-    role,
-    startupName: startupName || null,
-    expertise: expertise || null,
-    linkedin: linkedin || null,
-  };
-
-  if (index !== -1) {
-    db.data.users[index] = updatedUser;
-  } else {
-    db.data.users.push(updatedUser);
-  }
-
+      role,
+      startupName: startupName || null,
+      expertise: expertise || null,
+      linkedin: linkedin || null,
+    };
+    if (index !== -1) {
+      db.data.users[index] = updatedUser;
+    } else {
+      db.data.users.push(updatedUser);
+    }
     await db.write();
-    
     // Create new token with updated user data
     const newToken = Buffer.from(JSON.stringify(updatedUser)).toString('base64');
     res.json({ message: '✅ Profile saved!', token: newToken });

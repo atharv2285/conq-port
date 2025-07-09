@@ -1,5 +1,6 @@
 import express from 'express';
 import db from '../db.mjs';
+import startupMentorMap from '../utils/startupMentorMap.json' assert { type: 'json' };
 
 const router = express.Router();
 
@@ -37,10 +38,19 @@ router.get('/slots', async (req, res) => {
     const role = user.role;
     console.log('👤 User role:', role, 'email:', user.email);
 
-    const rawSlots =
-      role === 'mentor'
-        ? db.data.slots.filter(s => s.mentorEmail === user.email)
-        : db.data.slots.filter(s => !s.isBooked);
+    let rawSlots;
+    if (role === 'mentor') {
+      rawSlots = db.data.slots.filter(s => s.mentorEmail === user.email);
+    } else if (role === 'founder') {
+      // Find mentor for this founder's startup
+      const mapping = startupMentorMap.find(entry => entry.startup === (user.startupName || '').trim().toUpperCase());
+      if (!mapping) {
+        return res.status(400).json({ message: 'Startup not found in mapping.' });
+      }
+      rawSlots = db.data.slots.filter(s => s.mentorEmail === mapping.mentorEmail && !s.isBooked);
+    } else {
+      rawSlots = db.data.slots.filter(s => !s.isBooked);
+    }
 
     console.log('📅 Found', rawSlots.length, 'slots for user');
 
